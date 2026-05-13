@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Annapurna — Premium Asian Kitchen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────
+   TOKENS
+───────────────────────────────────────── */
+:root {
+  --bg:           #080808;
+  --surface:      #111111;
+  --elevated:     #1a1a1a;
+  --card:         #141414;
+  --accent:       #c8902a;
+  --accent-lt:    #e5b96a;
+  --accent-dk:    #7a5518;
+  --accent-glow:  rgba(200,144,42,0.18);
+  --accent-rim:   rgba(200,144,42,0.28);
+  --text:         #f0ebe0;
+  --text-muted:   #6e6456;
+  --text-soft:    #a89880;
+  --border:       rgba(255,255,255,0.055);
+  --border-warm:  rgba(200,144,42,0.22);
+  --r-sm:  10px;
+  --r-md:  16px;
+  --r-lg:  22px;
+  --r-xl:  30px;
+}
+
+/* ─────────────────────────────────────────
+   RESET & BASE
+───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body { overflow-x: hidden; }
+
+img { display: block; max-width: 100%; }
+
+button, [role="button"] { cursor: pointer; font-family: inherit; }
+
+/* ─────────────────────────────────────────
+   PAGE SYSTEM
+───────────────────────────────────────── */
+.page {
+  display: none;
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: var(--bg);
+}
+.page.active  { display: block; }
+.page.visible { opacity: 1; }
+
+/* ─────────────────────────────────────────
+   AMBIENT BACKGROUND
+───────────────────────────────────────── */
+.ambient {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 10%, rgba(200,144,42,0.055) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 85% 85%, rgba(200,144,42,0.045) 0%, transparent 60%);
+}
+
+/* SVG noise grain overlay */
+.grain {
+  position: fixed; inset: 0; pointer-events: none; z-index: 1000; opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
+/* ─────────────────────────────────────────
+   FIXED CHROME (hamburger / top nav)
+───────────────────────────────────────── */
+.top-bar {
+  position: fixed; top: 0; left: 0; right: 0;
+  height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px;
+  z-index: 200;
+  pointer-events: none;
+}
+.top-bar > * { pointer-events: auto; }
+
+.nav-logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 400; letter-spacing: 0.04em;
+  color: var(--text);
+  opacity: 0; transition: opacity 0.3s ease;
+}
+.nav-logo.show { opacity: 1; }
+
+.hamburger {
+  width: 42px; height: 42px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  transition: background 0.2s;
+}
+.hamburger:hover { background: rgba(255,255,255,0.09); }
+.hamburger:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hamburger span {
+  display: block; width: 17px; height: 1.5px;
+  background: var(--text); border-radius: 2px;
+  transition: transform 0.3s cubic-bezier(0.16,1,0.3,1), opacity 0.2s;
+}
+.hamburger.is-open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamburger.is-open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.is-open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ─────────────────────────────────────────
+   DRAWER
+───────────────────────────────────────── */
+.drawer-mask {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.72);
+  z-index: 290; opacity: 0; pointer-events: none;
+  transition: opacity 0.35s ease;
+  backdrop-filter: blur(2px);
+}
+.drawer-mask.open { opacity: 1; pointer-events: auto; }
+
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: min(340px, 86vw);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 300;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.16,1,0.3,1);
+  display: flex; flex-direction: column;
+  padding: 72px 28px 36px;
+  overflow-y: auto;
+}
+.drawer.open { transform: translateX(0); }
+
+.drawer-close {
+  position: absolute; top: 18px; right: 18px;
+  width: 36px; height: 36px;
+  background: var(--elevated); border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text-muted); font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  transition: color 0.2s, border-color 0.2s;
+}
+.drawer-close:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+
+.drawer-brand-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px; font-weight: 400; letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+.drawer-brand-desc {
+  font-size: 13px; color: var(--text-muted); line-height: 1.7;
+  margin-bottom: 28px;
+}
+.drawer-rule { height: 1px; background: var(--border); margin: 4px 0 24px; }
+
+.drawer-nav { list-style: none; flex: 1; }
+.drawer-nav li { border-bottom: 1px solid var(--border); }
+.drawer-nav a {
+  display: block; padding: 14px 0;
+  font-size: 15px; font-weight: 500; color: var(--text);
+  text-decoration: none;
+  transition: color 0.2s, padding-left 0.2s;
+}
+.drawer-nav a:hover { color: var(--accent-lt); padding-left: 6px; }
+.drawer-nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+.drawer-socials {
+  display: flex; gap: 10px; margin-top: 28px;
+}
+.social-icon {
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--elevated); border: 1px solid var(--border);
+  border-radius: var(--r-sm); color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s, border-color 0.2s, transform 0.2s;
+}
+.social-icon:hover { color: var(--accent-lt); border-color: var(--border-warm); transform: translateY(-2px); }
+.social-icon:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ─────────────────────────────────────────
+   PAGE 1 — HOME
+───────────────────────────────────────── */
+#page-home {
+  position: relative;
+  height: 100dvh;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+
+.home-bg-img {
+  position: absolute; inset: 0; z-index: 1;
+}
+.home-bg-img img {
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center;
+  opacity: 0.18;
+  filter: saturate(0.6) brightness(0.7);
+}
+/* Multi-layer vignette */
+.home-bg-img::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 90% 90% at 50% 50%, transparent 20%, var(--bg) 80%),
+    linear-gradient(to bottom, var(--bg) 0%, transparent 30%, transparent 65%, var(--bg) 100%);
+}
+
+.home-hero-glow {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: radial-gradient(ellipse 60% 50% at 50% 65%, var(--accent-glow) 0%, transparent 70%);
+}
+
+.home-content {
+  position: relative; z-index: 3;
+  text-align: center; padding: 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+}
+
+.home-kicker {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(200,144,42,0.1);
+  border: 1px solid var(--border-warm);
+  padding: 5px 14px; border-radius: 100px;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent-lt);
+  margin-bottom: 28px;
+  animation: fadeUp 0.8s 0.1s both;
+}
+.home-kicker-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
+}
+
+.home-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(64px, 18vw, 112px);
+  font-weight: 300; letter-spacing: -0.03em; line-height: 0.95;
+  color: var(--text);
+  margin-bottom: 18px;
+  animation: fadeUp 0.9s 0.2s both;
+}
+.home-title em {
+  font-style: italic; font-weight: 300;
+  color: var(--accent-lt);
+}
+
+.home-tagline {
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 48px;
+  animation: fadeUp 0.9s 0.3s both;
+}
+
+.btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--accent); color: #080808;
+  font-weight: 600; font-size: 13px; letter-spacing: 0.04em;
+  padding: 16px 34px; border-radius: 100px; border: none;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease;
+  animation: fadeUp 0.9s 0.4s both;
+}
+.btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 28px rgba(200,144,42,0.45);
+}
+.btn-primary:active { transform: scale(0.97); }
+.btn-primary:focus-visible { outline: 2px solid var(--accent-lt); outline-offset: 3px; }
+
+.btn-primary svg { transition: transform 0.2s; }
+.btn-primary:hover svg { transform: translateX(3px); }
+
+.home-scroll-hint {
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  z-index: 3;
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  animation: fadeUp 1s 1s both;
+}
+.scroll-line {
+  width: 1px; height: 36px;
+  background: linear-gradient(to bottom, var(--accent), transparent);
+  animation: scrollPulse 2s 2s infinite;
+}
+.scroll-label {
+  font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted);
+}
+
+/* ─────────────────────────────────────────
+   PAGE 2 — MENU
+───────────────────────────────────────── */
+#page-menu {
+  padding-top: 64px; padding-bottom: 110px;
+  min-height: 100dvh;
+}
+
+.menu-hero {
+  position: relative;
+  height: clamp(260px, 52vw, 400px);
+  margin: 16px 16px 0;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  background: var(--surface);
+}
+.menu-hero img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 0.6s ease;
+}
+.menu-hero:hover img { transform: scale(1.03); }
+.menu-hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    160deg,
+    rgba(8,8,8,0.1) 0%,
+    rgba(8,8,8,0.3) 40%,
+    rgba(8,8,8,0.82) 100%
+  );
+}
+.menu-hero-content {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 28px 28px 30px;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--accent); color: #080808;
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 100px;
+  margin-bottom: 10px;
+}
+.menu-hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(30px, 7vw, 48px); font-weight: 400; line-height: 1.1;
+  margin-bottom: 6px;
+}
+.menu-hero-sub { font-size: 12px; color: rgba(240,235,224,0.65); }
+
+/* Category strip */
+.cat-strip {
+  padding: 20px 16px 0;
+  overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.cat-strip::-webkit-scrollbar { display: none; }
+.cat-inner { display: flex; gap: 8px; min-width: max-content; padding-bottom: 4px; }
+
+.cat-pill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 18px; border-radius: 100px;
+  font-size: 12px; font-weight: 500;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted); white-space: nowrap;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.cat-pill:hover { color: var(--text); border-color: rgba(255,255,255,0.18); }
+.cat-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.cat-pill.active {
+  background: var(--accent); color: #080808;
+  border-color: var(--accent); font-weight: 600;
+}
+
+/* Menu section */
+.menu-section {
+  padding: 40px 16px 0;
+}
+.section-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 20px; padding: 0 2px;
+}
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 400; letter-spacing: -0.02em;
+}
+.section-sub {
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--text-muted); padding-bottom: 3px;
+}
+
+/* Food grid */
+.food-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (min-width: 560px) { .food-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 820px) { .food-grid { grid-template-columns: repeat(4, 1fr); } }
+
+.food-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition:
+    transform 0.28s cubic-bezier(0.34,1.56,0.64,1),
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+  position: relative;
+}
+.food-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--border-warm);
+  box-shadow:
+    0 12px 40px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(200,144,42,0.18);
+}
+.food-card:active { transform: translateY(-2px); }
+.food-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-md); }
+
+.food-img-wrap {
+  position: relative; width: 100%; padding-top: 78%; overflow: hidden;
+  background: var(--elevated);
+}
+.food-img-wrap img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+.food-card:hover .food-img-wrap img { transform: scale(1.06); }
+.food-img-gradient {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(8,8,8,0.55) 0%, transparent 55%);
+}
+
+.food-info { padding: 12px 13px 14px; }
+.food-name {
+  font-size: 12px; font-weight: 500; line-height: 1.4;
+  margin-bottom: 5px; color: var(--text);
+}
+.food-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px; font-weight: 500; color: var(--accent-lt);
+}
+
+/* Veg / Non-veg dot */
+.veg-dot {
+  position: absolute; top: 10px; left: 10px;
+  width: 16px; height: 16px;
+  background: rgba(8,8,8,0.7);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  display: flex; align-items: center; justify-content: center;
+}
+.veg-dot::after {
+  content: '';
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #4caf50;
+}
+.veg-dot.non-veg::after { background: #e53935; }
+
+/* Play / Lucky Spin CTA — fixed bottom */
+.spin-fab {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  z-index: 150;
+  display: flex; align-items: center; gap: 9px;
+  background: var(--surface);
+  border: 1px solid var(--border-warm);
+  color: var(--accent-lt);
+  font-weight: 600; font-size: 13px; letter-spacing: 0.04em;
+  padding: 13px 26px; border-radius: 100px;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 0 1px rgba(200,144,42,0.1);
+  white-space: nowrap;
+  transition: box-shadow 0.25s ease, background 0.25s ease;
+}
+.spin-fab:hover {
+  background: rgba(26,26,26,0.9);
+  box-shadow: 0 12px 48px rgba(200,144,42,0.28), 0 0 0 1px var(--border-warm);
+}
+.spin-fab:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.spin-fab .fab-pulse {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+  animation: pulse 2s infinite;
+}
+
+/* ─────────────────────────────────────────
+   PAGE 3 — LUCKY SPIN
+───────────────────────────────────────── */
+#page-game {
+  padding-top: 72px; padding-bottom: 48px;
+  min-height: 100dvh;
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.game-header { text-align: center; padding: 16px 24px 28px; }
+.game-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(38px, 9vw, 60px); font-weight: 300; letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+.game-sub { font-size: 12px; color: var(--text-muted); letter-spacing: 0.12em; }
+
+.filter-pills {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+  padding: 0 20px 28px;
+}
+.filter-pill {
+  padding: 8px 18px; border-radius: 100px;
+  font-size: 12px; font-weight: 500;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted);
+  transition: all 0.2s;
+}
+.filter-pill:hover { color: var(--text); border-color: rgba(255,255,255,0.2); }
+.filter-pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.filter-pill.active {
+  background: var(--accent); color: #080808;
+  border-color: var(--accent); font-weight: 600;
+}
+
+/* Wheel */
+.wheel-container {
+  position: relative;
+  width: min(300px, 78vw); height: min(300px, 78vw);
+  margin-bottom: 32px;
+}
+.wheel-pointer {
+  position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: 11px solid transparent;
+  border-right: 11px solid transparent;
+  border-top: 22px solid var(--accent);
+  filter: drop-shadow(0 3px 8px rgba(200,144,42,0.5));
+  z-index: 2;
+}
+canvas#wheel { width: 100%; height: 100%; }
+.wheel-hub {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+  width: 48px; height: 48px;
+  background: var(--bg); border: 2px solid var(--border-warm);
+  border-radius: 50%; z-index: 2;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 0 20px rgba(200,144,42,0.15);
+}
+
+/* Action buttons */
+.game-actions {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  margin-bottom: 28px;
+}
+.btn-spin {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: var(--accent); color: #080808;
+  font-weight: 700; font-size: 14px; letter-spacing: 0.03em;
+  padding: 17px 42px; border-radius: 100px; border: none;
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s;
+}
+.btn-spin:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 32px rgba(200,144,42,0.5);
+}
+.btn-spin:active { transform: scale(0.96); }
+.btn-spin:disabled { opacity: 0.45; transform: none; cursor: not-allowed; box-shadow: none; }
+.btn-spin:focus-visible { outline: 2px solid var(--accent-lt); outline-offset: 3px; }
+
+.btn-ghost {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted); font-size: 12px; font-weight: 500;
+  padding: 11px 22px; border-radius: 100px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-ghost:hover { color: var(--text); border-color: rgba(255,255,255,0.22); }
+.btn-ghost:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Result card */
+.result-card {
+  width: calc(100% - 32px); max-width: 360px;
+  background: var(--card);
+  border: 1px solid var(--border-warm);
+  border-radius: var(--r-lg); overflow: hidden;
+  opacity: 0; transform: translateY(20px) scale(0.97);
+  transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+}
+.result-card.show { opacity: 1; transform: none; pointer-events: auto; }
+.result-img-wrap { position: relative; height: 200px; overflow: hidden; }
+.result-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+.result-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top, rgba(8,8,8,0.7) 0%, transparent 60%);
+}
+.result-body { padding: 22px 22px 24px; }
+.result-cat {
+  font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--accent-lt); margin-bottom: 6px;
+}
+.result-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 400; margin-bottom: 6px;
+}
+.result-price {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px; color: var(--accent-lt);
+}
+
+/* ─────────────────────────────────────────
+   REVEAL ANIMATION
+───────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.55s ease, transform 0.55s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.in {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ─────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.75); }
+}
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 0.2; }
+}
+</style>
+</head>
+<body>
+
+<!-- Ambient + grain -->
+<div class="ambient" aria-hidden="true"></div>
+<div class="grain"   aria-hidden="true"></div>
+
+<!-- ─── FIXED TOP BAR ─── -->
+<div class="top-bar">
+  <span class="nav-logo" id="navLogo">Annapurna</span>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Open navigation" aria-expanded="false"
+          onclick="toggleDrawer()">
+    <span></span><span></span><span></span>
+  </button>
+</div>
+
+<!-- ─── DRAWER ─── -->
+<div class="drawer-mask" id="drawerMask" onclick="toggleDrawer()"></div>
+<nav class="drawer" id="drawer" aria-label="Site navigation">
+  <button class="drawer-close" onclick="toggleDrawer()" aria-label="Close menu">&#x2715;</button>
+  <p class="drawer-brand-name">Annapurna</p>
+  <p class="drawer-brand-desc">
+    A premium Asian street-food kitchen crafting bold wok flavors,
+    handmade Himalayan dumplings, and aromatic rice bowls —
+    made fresh, every time.
+  </p>
+  <div class="drawer-rule"></div>
+  <ul class="drawer-nav">
+    <li><a href="#" onclick="nav('home');   return false;">Home</a></li>
+    <li><a href="#" onclick="nav('menu');   return false;">Menu</a></li>
+    <li><a href="#" onclick="nav('game');   return false;">Lucky Spin</a></li>
+    <li><a href="#">About Us</a></li>
+    <li><a href="#">Contact</a></li>
+  </ul>
+  <div class="drawer-socials">
+    <!-- Instagram -->
+    <a class="social-icon" href="#" aria-label="Instagram">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+        <circle cx="12" cy="12" r="4"/>
+        <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+      </svg>
+    </a>
+    <!-- Facebook -->
+    <a class="social-icon" href="#" aria-label="Facebook">
+      <svg width="17" height="17" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+      </svg>
+    </a>
+    <!-- WhatsApp -->
+    <a class="social-icon" href="tel:+" aria-label="Call / WhatsApp">
+      <svg width="17" height="17" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/>
+        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.502 3.933 1.385 5.608L0 24l6.545-1.363A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.007-1.371l-.36-.213-3.882.809.824-3.773-.234-.387A9.818 9.818 0 0 1 2.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/>
+      </svg>
+    </a>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════
+     PAGE 1 — HOME
+════════════════════════════════════════ -->
+<div id="page-home" class="page">
+  <!-- Blurred BG hero image -->
+  <div class="home-bg-img">
+    <img src="Menu images/Veg_Hakka_noddles.png" alt="" aria-hidden="true">
+  </div>
+  <div class="home-hero-glow" aria-hidden="true"></div>
+
+  <div class="home-content">
+    <div class="home-kicker" aria-hidden="true">
+      <span class="home-kicker-dot"></span>
+      Premium Asian Kitchen
+    </div>
+
+    <h1 class="home-title">Anna<em>purna</em></h1>
+
+    <p class="home-tagline">Wok-fired · Street soul · Modern craft</p>
+
+    <button class="btn-primary" onclick="nav('menu')">
+      Explore Menu
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="home-scroll-hint" aria-hidden="true">
+    <div class="scroll-line"></div>
+    <span class="scroll-label">Scroll</span>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 2 — MENU
+════════════════════════════════════════ -->
+<div id="page-menu" class="page">
+
+  <!-- Hero banner -->
+  <div class="menu-hero reveal">
+    <img src="Menu images/Veg_Hakka_noddles.png" alt="Veg Hakka Noodles — Best Seller">
+    <div class="menu-hero-overlay"></div>
+    <div class="menu-hero-content">
+      <div class="hero-badge">⭐ Best Seller</div>
+      <h2 class="menu-hero-title">Veg Hakka<br>Noodles</h2>
+      <p class="menu-hero-sub">Our most-loved wok-tossed classic · /-149</p>
+    </div>
+  </div>
+
+  <!-- Category pills -->
+  <div class="cat-strip reveal">
+    <div class="cat-inner" role="group" aria-label="Filter by category">
+      <button class="cat-pill active" data-cat="all"     onclick="filterMenu(this,'all')">🍽&nbsp; All</button>
+      <button class="cat-pill"        data-cat="noodles" onclick="filterMenu(this,'noodles')">🍜&nbsp; Noodles</button>
+      <button class="cat-pill"        data-cat="rice"    onclick="filterMenu(this,'rice')">🍚&nbsp; Rice &amp; Pulaw</button>
+      <button class="cat-pill"        data-cat="momos"   onclick="filterMenu(this,'momos')">🥟&nbsp; Momos</button>
+      <button class="cat-pill"        data-cat="sides"   onclick="filterMenu(this,'sides')">🌶&nbsp; Chinese Sides</button>
+    </div>
+  </div>
+
+  <!-- ── NOODLES ── -->
+  <div class="menu-section" data-section="noodles">
+    <div class="section-header reveal">
+      <h2 class="section-title">Noodles</h2>
+      <span class="section-sub">Wok tossed</span>
+    </div>
+    <div class="food-grid">
+
+      <div class="food-card reveal" data-cat="noodles" onclick="openResult(0)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/Veg_Hakka_noddles.png" alt="Veg Hakka Noodles" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Veg Hakka Noodles</p>
+          <p class="food-price">/-149</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="noodles" onclick="openResult(1)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/create_a__indain_style_manchurian_noodle_dish_image_3493977041.png" alt="Paneer Chilli Noodles" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Paneer Chilli Noodles</p>
+          <p class="food-price">/-179</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="noodles" onclick="openResult(2)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/Schezwan_Noddlles.png" alt="Schezwan Noodles" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Schezwan Noodles</p>
+          <p class="food-price">/-169</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="noodles" onclick="openResult(3)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/create_a_triple_schezwan_rice_dish_image_-whitr_rice__three_plates_4070194322.png" alt="Triple Schezwan Noodles" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Triple Schezwan Noodles</p>
+          <p class="food-price">/-219</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="noodles" onclick="openResult(4)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/create_a_garlic_noodles_dish_image_666576859.png" alt="Garlic Butter Noodles" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Garlic Butter Noodles</p>
+          <p class="food-price">/-189</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="noodles" onclick="openResult(5)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/create_a_hakka_noodle_dish_image_2175952394.png" alt="Chicken Hakka Noodles" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot non-veg" title="Non-Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Chicken Hakka Noodles</p>
+          <p class="food-price">/-209</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── RICE & PULAW ── -->
+  <div class="menu-section" data-section="rice">
+    <div class="section-header reveal">
+      <h2 class="section-title">Rice &amp; Pulaw</h2>
+      <span class="section-sub">Bold aroma</span>
+    </div>
+    <div class="food-grid">
+
+      <div class="food-card reveal" data-cat="rice" onclick="openResult(6)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/Veg_Fried_Rice.png" alt="Veg Fried Rice" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Veg Fried Rice</p>
+          <p class="food-price">/-149</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="rice" onclick="openResult(7)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/Paneer_Fried_Rice.png" alt="Paneer Fried Rice" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Paneer Fried Rice</p>
+          <p class="food-price">/-179</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="rice" onclick="openResult(8)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/Schezwan_Fried_Rice.png" alt="Schezwan Fried Rice" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Schezwan Fried Rice</p>
+          <p class="food-price">/-169</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="rice" onclick="openResult(9)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="https://placehold.co/400x320/111111/c8902a?text=Burnt+Garlic+Rice" alt="Burnt Garlic Rice" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Burnt Garlic Rice</p>
+          <p class="food-price">/-189</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="rice" onclick="openResult(10)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="https://placehold.co/400x320/111111/c8902a?text=Chicken+Fried+Rice" alt="Chicken Fried Rice" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot non-veg" title="Non-Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Chicken Fried Rice</p>
+          <p class="food-price">/-219</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="rice" onclick="openResult(11)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/create_a_veg_pulaw_dish_image_1237316950.png" alt="Veg Pulaw" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Veg Pulaw</p>
+          <p class="food-price">/-159</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── MOMOS ── -->
+  <div class="menu-section" data-section="momos">
+    <div class="section-header reveal">
+      <h2 class="section-title">Momos</h2>
+      <span class="section-sub">Himalayan dumplings</span>
+    </div>
+    <div class="food-grid">
+
+      <div class="food-card reveal" data-cat="momos" onclick="openResult(12)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/Steamed Veg Momos.png" alt="Steamed Veg Momos" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Steamed Veg Momos</p>
+          <p class="food-price">/-129</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="momos" onclick="openResult(13)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/Veg_Fried_Momos.png" alt="Fried Veg Momos" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Fried Veg Momos</p>
+          <p class="food-price">/-149</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="momos" onclick="openResult(14)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="https://placehold.co/400x320/111111/c8902a?text=Paneer+Momos" alt="Paneer Momos" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Paneer Momos</p>
+          <p class="food-price">/-169</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="momos" onclick="openResult(15)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="https://placehold.co/400x320/111111/c8902a?text=Tandoori+Momos" alt="Tandoori Momos" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Tandoori Momos</p>
+          <p class="food-price">/-199</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="momos" onclick="openResult(16)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="https://placehold.co/400x320/111111/c8902a?text=Chicken+Momos" alt="Chicken Momos" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot non-veg" title="Non-Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Chicken Momos</p>
+          <p class="food-price">/-219</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="momos" onclick="openResult(17)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="https://placehold.co/400x320/111111/c8902a?text=Cheese+Burst+Momos" alt="Cheese Burst Momos" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Cheese Burst Momos</p>
+          <p class="food-price">/-229</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── CHINESE SIDES ── -->
+  <div class="menu-section" data-section="sides">
+    <div class="section-header reveal">
+      <h2 class="section-title">Chinese Sides</h2>
+      <span class="section-sub">Indo-Chinese</span>
+    </div>
+    <div class="food-grid">
+
+      <div class="food-card reveal" data-cat="sides" onclick="openResult(18)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="https://placehold.co/400x320/111111/c8902a?text=Chilli+Paneer" alt="Chilli Paneer" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Chilli Paneer</p>
+          <p class="food-price">/-229</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="sides" onclick="openResult(19)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/veg_manchurian_with_gravy_3464388738.png" alt="Veg Manchurian" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Veg Manchurian</p>
+          <p class="food-price">/-199</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="sides" onclick="openResult(20)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="https://placehold.co/400x320/111111/c8902a?text=Crispy+Corn" alt="Crispy Corn" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Crispy Corn</p>
+          <p class="food-price">/-179</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="sides" onclick="openResult(21)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="Menu images/indian_style_gobi_manchurian__1817548010.png" alt="Honey Chilli Potato" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Honey Chilli Potato</p>
+          <p class="food-price">/-189</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="sides" onclick="openResult(22)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="https://placehold.co/400x320/111111/c8902a?text=Dragon+Chicken" alt="Dragon Chicken" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot non-veg" title="Non-Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Dragon Chicken</p>
+          <p class="food-price">/-269</p>
+        </div>
+      </div>
+
+      <div class="food-card reveal" data-cat="sides" onclick="openResult(23)" tabindex="0">
+        <div class="food-img-wrap">
+          <img src="https://placehold.co/400x320/111111/c8902a?text=Spring+Rolls" alt="Spring Rolls" loading="lazy">
+          <div class="food-img-gradient"></div>
+        </div>
+        <span class="veg-dot" title="Vegetarian"></span>
+        <div class="food-info">
+          <p class="food-name">Spring Rolls</p>
+          <p class="food-price">/-159</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Lucky Spin FAB -->
+  <button class="spin-fab" onclick="nav('game')" aria-label="Go to Lucky Spin game">
+    <span class="fab-pulse" aria-hidden="true"></span>
+    🎲&nbsp; Lucky Spin
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════
+     PAGE 3 — LUCKY SPIN
+════════════════════════════════════════ -->
+<div id="page-game" class="page">
+
+  <div class="game-header">
+    <h1 class="game-title">Lucky Spin</h1>
+    <p class="game-sub">Let fate choose your next meal</p>
+  </div>
+
+  <div class="filter-pills" role="group" aria-label="Filter wheel items">
+    <button class="filter-pill active" data-filter="all"     onclick="setFilter(this,'all')">All Items</button>
+    <button class="filter-pill"        data-filter="noodles" onclick="setFilter(this,'noodles')">🍜 Noodles</button>
+    <button class="filter-pill"        data-filter="rice"    onclick="setFilter(this,'rice')">🍚 Rice</button>
+    <button class="filter-pill"        data-filter="momos"   onclick="setFilter(this,'momos')">🥟 Momos</button>
+    <button class="filter-pill"        data-filter="sides"   onclick="setFilter(this,'sides')">🌶 Sides</button>
+  </div>
+
+  <div class="wheel-container">
+    <div class="wheel-pointer" aria-hidden="true"></div>
+    <canvas id="wheel" width="300" height="300" aria-label="Spin wheel"></canvas>
+    <div class="wheel-hub" aria-hidden="true">🎲</div>
+  </div>
+
+  <div class="game-actions">
+    <button class="btn-spin" id="btnSpin" onclick="spin()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+        <path d="M21 3v5h-5"/>
+      </svg>
+      Spin the Wheel
+    </button>
+    <button class="btn-ghost" onclick="nav('menu')">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to Menu
+    </button>
+  </div>
+
+  <div class="result-card" id="resultCard" aria-live="polite">
+    <div class="result-img-wrap">
+      <img id="resultImg" src="" alt="">
+      <div class="result-img-overlay"></div>
+    </div>
+    <div class="result-body">
+      <p class="result-cat" id="resultCat"></p>
+      <h2 class="result-name" id="resultName"></h2>
+      <p class="result-price" id="resultPrice"></p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─────────────────────────────────────────
+     JAVASCRIPT
+───────────────────────────────────────── -->
+<script>
+'use strict';
+
+/* ── MENU DATA ── */
+const ITEMS = [
+  /* 0  */ { name:'Veg Hakka Noodles',       price:'/-149', cat:'noodles', img:'Menu images/Veg_Hakka_noddles.png' },
+  /* 1  */ { name:'Paneer Chilli Noodles',    price:'/-179', cat:'noodles', img:'Menu images/create_a__indain_style_manchurian_noodle_dish_image_3493977041.png' },
+  /* 2  */ { name:'Schezwan Noodles',         price:'/-169', cat:'noodles', img:'Menu images/Schezwan_Noddlles.png' },
+  /* 3  */ { name:'Triple Schezwan Noodles',  price:'/-219', cat:'noodles', img:'Menu images/create_a_triple_schezwan_rice_dish_image_-whitr_rice__three_plates_4070194322.png' },
+  /* 4  */ { name:'Garlic Butter Noodles',    price:'/-189', cat:'noodles', img:'Menu images/create_a_garlic_noodles_dish_image_666576859.png' },
+  /* 5  */ { name:'Chicken Hakka Noodles',    price:'/-209', cat:'noodles', img:'Menu images/create_a_hakka_noodle_dish_image_2175952394.png' },
+  /* 6  */ { name:'Veg Fried Rice',           price:'/-149', cat:'rice',    img:'Menu images/Veg_Fried_Rice.png' },
+  /* 7  */ { name:'Paneer Fried Rice',        price:'/-179', cat:'rice',    img:'Menu images/Paneer_Fried_Rice.png' },
+  /* 8  */ { name:'Schezwan Fried Rice',      price:'/-169', cat:'rice',    img:'Menu images/Schezwan_Fried_Rice.png' },
+  /* 9  */ { name:'Burnt Garlic Rice',        price:'/-189', cat:'rice',    img:'https://placehold.co/400x320/111111/c8902a?text=Burnt+Garlic+Rice' },
+  /* 10 */ { name:'Chicken Fried Rice',       price:'/-219', cat:'rice',    img:'https://placehold.co/400x320/111111/c8902a?text=Chicken+Fried+Rice' },
+  /* 11 */ { name:'Veg Pulaw',               price:'/-159', cat:'rice',    img:'Menu images/create_a_veg_pulaw_dish_image_1237316950.png' },
+  /* 12 */ { name:'Steamed Veg Momos',        price:'/-129', cat:'momos',   img:'Menu images/Steamed Veg Momos.png' },
+  /* 13 */ { name:'Fried Veg Momos',          price:'/-149', cat:'momos',   img:'Menu images/Veg_Fried_Momos.png' },
+  /* 14 */ { name:'Paneer Momos',             price:'/-169', cat:'momos',   img:'https://placehold.co/400x320/111111/c8902a?text=Paneer+Momos' },
+  /* 15 */ { name:'Tandoori Momos',           price:'/-199', cat:'momos',   img:'https://placehold.co/400x320/111111/c8902a?text=Tandoori+Momos' },
+  /* 16 */ { name:'Chicken Momos',            price:'/-219', cat:'momos',   img:'https://placehold.co/400x320/111111/c8902a?text=Chicken+Momos' },
+  /* 17 */ { name:'Cheese Burst Momos',       price:'/-229', cat:'momos',   img:'https://placehold.co/400x320/111111/c8902a?text=Cheese+Burst+Momos' },
+  /* 18 */ { name:'Chilli Paneer',            price:'/-229', cat:'sides',   img:'https://placehold.co/400x320/111111/c8902a?text=Chilli+Paneer' },
+  /* 19 */ { name:'Veg Manchurian',           price:'/-199', cat:'sides',   img:'Menu images/veg_manchurian_with_gravy_3464388738.png' },
+  /* 20 */ { name:'Crispy Corn',              price:'/-179', cat:'sides',   img:'https://placehold.co/400x320/111111/c8902a?text=Crispy+Corn' },
+  /* 21 */ { name:'Honey Chilli Potato',      price:'/-189', cat:'sides',   img:'Menu images/indian_style_gobi_manchurian__1817548010.png' },
+  /* 22 */ { name:'Dragon Chicken',           price:'/-269', cat:'sides',   img:'https://placehold.co/400x320/111111/c8902a?text=Dragon+Chicken' },
+  /* 23 */ { name:'Spring Rolls',             price:'/-159', cat:'sides',   img:'https://placehold.co/400x320/111111/c8902a?text=Spring+Rolls' },
+];
+
+/* ── PAGE NAVIGATION ── */
+let activePage = null;
+
+function nav(id) {
+  /* Hide previous page */
+  if (activePage) {
+    const prev = document.getElementById('page-' + activePage);
+    prev.classList.remove('visible');
+    setTimeout(() => prev.classList.remove('active'), 420);
+  }
+
+  /* Show new page — fixed-position pages don't fight in layout flow */
+  const next = document.getElementById('page-' + id);
+  next.classList.add('active');
+  next.scrollTop = 0;
+  /* One rAF to ensure display:block is painted before opacity transition */
+  requestAnimationFrame(() => next.classList.add('visible'));
+
+  activePage = id;
+
+  document.getElementById('navLogo').classList.toggle('show', id !== 'home');
+
+  if (id === 'menu') {
+    /* Reset then stagger reveals — immediate, no IntersectionObserver needed */
+    document.querySelectorAll('#page-menu .reveal').forEach(el => {
+      el.classList.remove('in');
+      el.style.transitionDelay = '';
+    });
+    requestAnimationFrame(() => {
+      document.querySelectorAll('#page-menu .reveal').forEach((el, i) => {
+        el.style.transitionDelay = `${80 + i * 28}ms`;
+        el.classList.add('in');
+      });
+    });
+  }
+  if (id === 'game') { resetResult(); drawWheel(); }
+
+  closeDrawer();
+}
+
+/* ── DRAWER ── */
+function toggleDrawer() {
+  const btn   = document.getElementById('hamburgerBtn');
+  const mask  = document.getElementById('drawerMask');
+  const panel = document.getElementById('drawer');
+  const open  = panel.classList.toggle('open');
+  mask.classList.toggle('open', open);
+  btn.classList.toggle('is-open', open);
+  btn.setAttribute('aria-expanded', open);
+}
+function closeDrawer() {
+  const btn   = document.getElementById('hamburgerBtn');
+  const mask  = document.getElementById('drawerMask');
+  const panel = document.getElementById('drawer');
+  panel.classList.remove('open');
+  mask.classList.remove('open');
+  btn.classList.remove('is-open');
+  btn.setAttribute('aria-expanded', 'false');
+}
+
+/* ── MENU FILTER ── */
+function filterMenu(btn, cat) {
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.querySelectorAll('#page-menu .menu-section').forEach(sec => {
+    sec.style.display = (cat === 'all' || sec.dataset.section === cat) ? '' : 'none';
+  });
+}
+
+/* ── OPEN RESULT FROM CARD ── */
+function openResult(idx) {
+  nav('game');
+  /* slight delay so page transition finishes before setting result */
+  setTimeout(() => showResult(ITEMS[idx]), 500);
+}
+
+/* ── WHEEL ── */
+const SEG_COLORS = ['#1a1a1a','#141208','#1a1a1a','#141208','#1a1a1a','#141208','#1a1a1a','#141208'];
+const SEG_TEXT   = ['#e5b96a','#9a7030','#e5b96a','#9a7030','#e5b96a','#9a7030','#e5b96a','#9a7030'];
+
+let wheelAngle  = 0;
+let spinning    = false;
+let activeFilter = 'all';
+let wheelItems  = [];
+
+function getFilteredItems() {
+  return activeFilter === 'all' ? ITEMS : ITEMS.filter(i => i.cat === activeFilter);
+}
+
+function setFilter(btn, filter) {
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  activeFilter = filter;
+  resetResult();
+  drawWheel();
+}
+
+function drawWheel() {
+  const canvas = document.getElementById('wheel');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const size = canvas.width;
+  const cx = size / 2, cy = size / 2, r = size / 2 - 6;
+
+  wheelItems = getFilteredItems();
+  const n = Math.min(wheelItems.length, 10);
+  const slice = (Math.PI * 2) / n;
+
+  ctx.clearRect(0, 0, size, size);
+
+  /* Outer glow ring */
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 2, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(200,144,42,0.2)';
+  ctx.lineWidth = 4;
+  ctx.shadowBlur = 16;
+  ctx.shadowColor = 'rgba(200,144,42,0.3)';
+  ctx.stroke();
+  ctx.restore();
+
+  for (let i = 0; i < n; i++) {
+    const startAngle = wheelAngle + i * slice;
+    const endAngle   = startAngle + slice;
+    const item = wheelItems[i];
+
+    /* Segment fill */
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, startAngle, endAngle);
+    ctx.closePath();
+    ctx.fillStyle = SEG_COLORS[i % SEG_COLORS.length];
+    ctx.fill();
+
+    /* Segment border */
+    ctx.strokeStyle = 'rgba(200,144,42,0.12)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    /* Label */
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(startAngle + slice / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = SEG_TEXT[i % SEG_TEXT.length];
+    const fs = Math.max(9, Math.min(12, 100 / n));
+    ctx.font = `600 ${fs}px "DM Sans", sans-serif`;
+    const raw   = item.name;
+    const label = raw.length > 13 ? raw.slice(0, 12) + '…' : raw;
+    ctx.fillText(label, r - 14, fs * 0.38);
+    ctx.restore();
+  }
+
+  /* Center cap */
+  ctx.beginPath();
+  ctx.arc(cx, cy, 24, 0, Math.PI * 2);
+  ctx.fillStyle = '#080808';
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(200,144,42,0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+}
+
+function spin() {
+  if (spinning) return;
+  spinning = true;
+  resetResult();
+
+  const btn = document.getElementById('btnSpin');
+  btn.disabled = true;
+  btn.textContent = 'Spinning…';
+
+  wheelItems = getFilteredItems();
+  const n         = Math.min(wheelItems.length, 10);
+  const winIdx    = Math.floor(Math.random() * wheelItems.length);
+  const slice     = (Math.PI * 2) / n;
+
+  /* Land the pointer (top = -π/2) on the winning segment */
+  const segMid    = (winIdx % n) * slice + slice / 2;
+  const target    = -segMid - Math.PI / 2 + Math.random() * slice * 0.6 - slice * 0.3;
+  const extraSpin = (6 + Math.random() * 4) * Math.PI * 2;
+  const totalDelta = extraSpin + ((target - wheelAngle) % (Math.PI * 2));
+
+  const duration = 3200 + Math.random() * 1200;
+  const t0       = performance.now();
+  const a0       = wheelAngle;
+
+  function frame(now) {
+    const p    = Math.min((now - t0) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 4);   /* ease-out-quart */
+    wheelAngle = a0 + totalDelta * ease;
+    drawWheel();
+
+    if (p < 1) {
+      requestAnimationFrame(frame);
+    } else {
+      spinning = false;
+      btn.disabled = false;
+      btn.innerHTML = `
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/>
+          <path d="M21 3v5h-5"/>
+        </svg> Spin Again`;
+      showResult(wheelItems[winIdx]);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function showResult(item) {
+  const card = document.getElementById('resultCard');
+  document.getElementById('resultImg').src   = item.img;
+  document.getElementById('resultImg').alt   = item.name;
+  document.getElementById('resultCat').textContent   = item.cat.charAt(0).toUpperCase() + item.cat.slice(1);
+  document.getElementById('resultName').textContent  = item.name;
+  document.getElementById('resultPrice').textContent = item.price;
+  setTimeout(() => card.classList.add('show'), 150);
+}
+
+function resetResult() {
+  document.getElementById('resultCard').classList.remove('show');
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', () => nav('home'));
+
+/* keyboard: Enter/Space on food cards */
+document.querySelectorAll('.food-card').forEach(card => {
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+  });
+});
+</script>
+</body>
+</html>

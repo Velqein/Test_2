@@ -1,0 +1,51 @@
+Design a premium modern restaurant menu landing page with a luxury aesthetic and smooth mobile-first experience.
+
+Style:
+Minimal and elegant
+Editorial-style layout
+Premium Asian street-food brand vibe
+Cinematic food presentation
+High-end café / modern restaurant branding
+Black or deep charcoal background
+Warm accent colors
+Large bold typography with clean sans-serif fonts
+Strong spacing and visual hierarchy
+Smooth scrolling sections
+Minimal clutter
+
+Layout:  
+- ## Overall Flow
+Home Page
+    ↓
+Menu Selection
+    ↓
+Game / Play Screen
+
+-Use modern card spacing and rounded corners
+-Include hover animations and soft transitions
+
+UI Feel:
+-Luxury food catalog rather than traditional menu
+-Instagram-worthy presentation
+-Smooth and immersive browsing
+-Modern premium restaurant microsite
+
+Visual Direction:
+
+-Apple-style spacing and cleanliness
+-Modern Webflow/Framer-inspired aesthetics
+-Elegant typography-focused composition
+-Minimal shadows
+-Soft glow effects
+-Smooth fade-in animations while scrolling
+
+Avoid:
+- Dark template
+-Crowded layouts
+-Cheap restaurant template look
+-Too many colors
+-Busy backgrounds
+-Overdesigned elements
+
+Goal:
+Create a visually premium, modern restaurant menu application that feels stylish, immersive, and brand-focused rather than a standard food ordering page.

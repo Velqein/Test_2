@@ -1,0 +1,50 @@
+Food Menu Architecture – Working Flow
+
+## 1. Home Page
+
+* App starts with the Home Page.
+* Logo is displayed in the center.
+* A button is available to continue to the next screen.
+* User moves from Home Page to Menu Selection screen.
+* Home screen has humburger button which shows below option if clicked.
+##Navigation Menu / Hamburger Button
+* User can tap the hamburger icon to open navigation options.
+* Itshows short if of customer business
+* Also at bottum will display social media option (Instagram, facebook and Whatsapp/contact)
+
+---
+
+## 2. Menu Selection
+
+* All itmes are visible in only menu page - scrollable items including catagory which shown in horizontal list. 
+* Banner/Hero Section contains most orderd/best seller items.
+* Menu screen contains multiple food/menu cards - horizontal list.
+* Different menu items are shown in grid layout.
+* User can view the entire menu by scrolling down or checking horizontal list. 
+* After selection, flow moves to the Game/Play screen.
+* At the bottom, "Play option displayed which redirect to page 3 #Game /Play Section
+---
+
+## 3. Game / Play Screen
+
+* Selected menu item opens in the Game/Play screen.
+* Main title is displayed at the top.
+* Option buttons are displayed below the title.
+* Main content area is shown in the center.
+* Action button is available at the bottom.
+
+---
+
+## Overall Flow
+
+```text
+Home Page
+    ↓
+Hamburger Option (if Clicked)
+    ↓
+Menu Selection
+    ↓
+Game / Play Screen
+```
+
+

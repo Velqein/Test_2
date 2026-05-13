@@ -1,0 +1,59 @@
+# Annapurna Menu
+
+## 🍜 Noodles
+
+*Wok tossed street-style noodles*
+
+| Item                    | Price |
+| ----------------------- | ----- |
+| Veg Hakka Noodles       | ₹149  |
+| Paneer Chilli Noodles   | ₹179  |
+| Schezwan Noodles        | ₹169  |
+| Triple Schezwan Noodles | ₹219  |
+| Garlic Butter Noodles   | ₹189  |
+| Chicken Hakka Noodles   | ₹209  |
+
+---
+
+## 🍚 Rice & Pulaw
+
+*Rich aroma and bold flavors*
+
+| Item                | Price |
+| ------------------- | ----- |
+| Veg Fried Rice      | ₹149  |
+| Paneer Fried Rice   | ₹179  |
+| Schezwan Fried Rice | ₹169  |
+| Burnt Garlic Rice   | ₹189  |
+| Chicken Fried Rice  | ₹219  |
+| Veg Pulaw           | ₹159  |
+
+---
+
+## 🥟 Momos
+
+*Handcrafted Himalayan dumplings*
+
+| Item               | Price |
+| ------------------ | ----- |
+| Steamed Veg Momos  | ₹129  |
+| Fried Veg Momos    | ₹149  |
+| Paneer Momos       | ₹169  |
+| Tandoori Momos     | ₹199  |
+| Chicken Momos      | ₹219  |
+| Cheese Burst Momos | ₹229  |
+
+---
+
+## 🌶 Chinese Sides
+
+*Bold Indo-Chinese favorites*
+
+| Item                | Price |
+| ------------------- | ----- |
+| Chilli Paneer       | ₹229  |
+| Veg Manchurian      | ₹199  |
+| Crispy Corn         | ₹179  |
+| Honey Chilli Potato | ₹189  |
+| Dragon Chicken      | ₹269  |
+| Spring Rolls        | ₹159  |

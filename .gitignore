@@ -1,0 +1,7 @@
+node_modules/
+temporary screenshots/
+ss_multi.mjs
+ss_debug.mjs
+ss_debug2.mjs
+ss_debug3.mjs
+package-lock.json
